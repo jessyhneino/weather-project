@@ -1,0 +1,16 @@
+{
+  "hello": "مرحبا",
+  "Syria": "سوريا",
+  "min": "الصغرى",
+  "max": "الكبرى",
+  "light rain": "امطار متوسطة",
+  "clear sky": "سماء صافية",
+  "few clouds": "قليل من الغيوم",
+  "scattered clouds": "غيوم متناثرة",
+  "shower rain": "زخات مطر",
+  "broken clouds": "غيوم متفرقة",
+  "rain": "مطر",
+  "thunderstorm": "عاصفة رعدية",
+  "snow": "ثلج",
+  "mist": "ضباب"
+}
