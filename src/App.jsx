@@ -1,19 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
-// import Test from "./test";
 import { createTheme, ThemeProvider } from "@mui/material";
-
-// REACT
-import { useEffect } from "react";
-
-//MATERIAL UI COMPONENT
-
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CloudIcon from "@mui/icons-material/Cloud";
 import Button from "@mui/material/Button";
-
-// EXTERNAL LIBRARY
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
 import axios from "axios";
 import moment from "moment";
 import "moment/dist/locale/ar";
@@ -27,11 +22,10 @@ const theme = createTheme({
   },
 });
 
-let concelAxios = null;
 function App() {
-  // ============== STATES ==============
-
   const { t, i18n } = useTranslation();
+
+  // ============== STATES ==============
   const [dateAndTime, setDateAndTime] = useState("");
   const [temp, setTemp] = useState({
     number: null,
@@ -41,73 +35,87 @@ function App() {
     icon: null,
   });
   const [locale, setLocal] = useState("ar");
-  const direction = locale == "ar" ? "rtl" : "ltr"
+  const [country, setCountry] = useState("Syria"); // ✅ الدولة الافتراضية
+  const direction = locale === "ar" ? "rtl" : "ltr";
 
-  // ============== EVENT HANDELERS ==============
+  // ✅ قائمة البلدان
+  const countries = [
+    "Syria",
+    "Lebanon",
+    "Jordan",
+    "Iraq",
+    "Egypt",
+    "Saudi Arabia",
+    "United Arab Emirates",
+    "Qatar",
+    "Kuwait",
+    "Bahrain",
+    "Oman",
+    "Yemen",
+    "Turkey",
+    "France",
+    "Germany",
+    "United Kingdom",
+    "United States",
+    "China",
+    "Japan",
+    "India",
+  ];
+
+  // ============== EVENT HANDLERS ==============
   function handleLanguageClick() {
-    if (locale == "ar") {
+    if (locale === "ar") {
       setLocal("en");
       moment.locale("en");
-
       i18n.changeLanguage("en");
     } else {
       setLocal("ar");
       moment.locale("ar");
-
       i18n.changeLanguage("ar");
     }
     setDateAndTime(moment().format("MMMM Do YYYY, h:mm:ss a"));
   }
+
+  async function fetchWeather(selectedCountry) {
+    try {
+      setDateAndTime(moment().format("MMMM Do YYYY, h:mm:ss a"));
+
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${selectedCountry}&appid=e18ea0896663088be72dbb7f56771a78`
+      );
+
+      const responseTemp = Math.round(response.data.main.temp - 272.15);
+      const min = Math.round(response.data.main.temp_min - 272.15);
+      const max = Math.round(response.data.main.temp_max - 272.15);
+      const description = response.data.weather[0].description;
+      const responseIcon = response.data.weather[0].icon;
+
+      setTemp({
+        number: responseTemp,
+        min,
+        max,
+        description,
+        icon: `https://openweathermap.org/img/wn/${responseIcon}@2x.png`,
+      });
+    } catch (error) {
+      console.error("Error fetching weather:", error);
+      alert("⚠️ لم يتم العثور على هذه المدينة. حاول اختيار بلد آخر.");
+    }
+  }
+
   useEffect(() => {
     i18n.changeLanguage(locale);
+    fetchWeather(country);
   }, []);
 
   useEffect(() => {
-    setDateAndTime(moment().format("MMMM Do YYYY, h:mm:ss a"));
-    axios
-      .get(
-        "https://api.openweathermap.org/data/2.5/weather?lat=34.802075&lon=38.996815&appid=e18ea0896663088be72dbb7f56771a78",
-        {
-          cancelToken: new axios.CancelToken((c) => {
-            concelAxios = c;
-          }),
-        }
-      )
-      .then(function (response) {
-        // handle success
-        const responseTemp = Math.round(response.data.main.temp - 272.15);
-        const min = Math.round(response.data.main.temp_min - 272.15);
-        const max = Math.round(response.data.main.temp_max - 272.15);
-        const description = response.data.weather[0].description;
-        const responseIcon = response.data.weather[0].icon;
-        console.log(response.data);
-        setTemp({
-          number: responseTemp,
-          min: min,
-          max: max,
-          description: description,
-          icon: `https://openweathermap.org/img/wn/${responseIcon}@2x.png`,
-        });
-      })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      });
+    fetchWeather(country);
+  }, [country]);
 
-    return () => {
-      concelAxios();
-    };
-  }, []);
   return (
-    <div
-      className="App"
-      style={{
-        textAlign: "center",
-      }}
-    >
+    <div className="App" style={{ textAlign: "center" }}>
       <ThemeProvider theme={theme}>
-        <Container maxWidth="sm" style={{}}>
-          {/* CONTENT CONTAINER */}
+        <Container maxWidth="sm">
           <div
             style={{
               display: "flex",
@@ -129,40 +137,59 @@ function App() {
                 boxShadow: "0px 11px 1px rgba(0,0,0,0.05)",
               }}
             >
+              {/* SELECT COUNTRY */}
+              <FormControl
+                fullWidth
+                size="small"
+                style={{
+                  background: "white",
+                  borderRadius: "5px",
+                  marginBottom: "10px",
+                }}
+              >
+                <InputLabel>{t("")}</InputLabel>
+                <Select
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  label={t("Country")}
+                >
+                  {countries.map((c) => (
+                    <MenuItem key={c} value={c}>
+                      {t(c)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
               {/* CONTENT */}
               <div>
-                {/* CITY & TIME */}
                 <div
                   style={{
                     display: "flex",
                     alignItems: "end",
                     justifyContent: "start",
                   }}
-              dir={direction}
-                  
+                  dir={direction}
                 >
                   <Typography
                     variant="h2"
                     style={{ marginRight: "20px", fontWeight: "600" }}
                   >
-                    {t("Syria")}
+                    {t(country)}
                   </Typography>
 
                   <Typography variant="h5" style={{ marginRight: "20px" }}>
-                    {dateAndTime}{" "}
+                    {dateAndTime}
                   </Typography>
                 </div>
-                {/* === CITY & TIME === */}
 
                 <hr />
-                {/* container of degree + cloud icon */}
+
                 <div
                   style={{ display: "flex", justifyContent: "space-around" }}
-              dir={direction}
+                  dir={direction}
                 >
-                  {/* DEGREE & DESCRIPTION */}
                   <div>
-                    {/* TEMP */}
                     <div
                       style={{
                         display: "flex",
@@ -173,12 +200,11 @@ function App() {
                       <Typography variant="h1" style={{ textAlign: "right" }}>
                         {temp.number}
                       </Typography>
-
-                      <img src={temp.icon} />
+                      <img src={temp.icon} alt="weather icon" />
                     </div>
-                    {/* === TEMP === */}
+
                     <Typography variant="h6">{t(temp.description)}</Typography>
-                    {/* MIN & MAX */}
+
                     <div
                       style={{
                         display: "flex",
@@ -195,16 +221,13 @@ function App() {
                       </h5>
                     </div>
                   </div>
-                  {/* === DEGREE & DESCRIPTION === */}
 
                   <CloudIcon style={{ fontSize: "200px", color: "white" }} />
                 </div>
-                {/* === container of degree + cloud icon === */}
               </div>
-              {/* === CONTENT === */}
             </div>
-            {/* === CARD === */}
-            {/* TRANSLATION CONTAINER */}
+
+            {/* TRANSLATION BUTTON */}
             <div
               dir={direction}
               style={{
@@ -219,12 +242,10 @@ function App() {
                 variant="text"
                 onClick={handleLanguageClick}
               >
-                {locale == "en" ? "Arabic" : "انجليزي"}
+                {locale === "en" ? "Arabic" : "انجليزية"}
               </Button>
             </div>
-            {/* === TRANSLATION CONTAINER === */}
           </div>
-          {/* === CONTENT CONTAINER === */}
         </Container>
       </ThemeProvider>
     </div>

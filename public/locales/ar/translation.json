@@ -1,6 +1,5 @@
 {
   "hello": "مرحبا",
-  "Syria": "سوريا",
   "min": "الصغرى",
   "max": "الكبرى",
   "light rain": "امطار متوسطة",
@@ -12,5 +11,22 @@
   "rain": "مطر",
   "thunderstorm": "عاصفة رعدية",
   "snow": "ثلج",
-  "mist": "ضباب"
+  "mist": "ضباب",
+
+   "Syria": "سوريا",
+  "Lebanon": "لبنان",
+  "Jordan": "الأردن",
+  "Iraq": "العراق",
+  "Egypt": "مصر",
+  "Saudi Arabia": "السعودية",
+  "United Arab Emirates": "الإمارات العربية المتحدة",
+  "Qatar": "قطر",
+  "Turkey": "تركيا",
+  "France": "فرنسا",
+  "Germany": "ألمانيا",
+  "United States": "الولايات المتحدة",
+  "United Kingdom": "المملكة المتحدة",
+  "China": "الصين",
+  "Japan": "اليابان",
+  "India": "الهند"
 }
